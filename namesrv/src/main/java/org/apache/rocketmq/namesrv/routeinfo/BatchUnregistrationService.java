@@ -60,6 +60,7 @@ public class BatchUnregistrationService extends ServiceThread {
     @Override
     public void run() {
         while (!this.isStopped()) {
+            //
             try {
                 final UnRegisterBrokerRequestHeader request = unregistrationQueue.take();
                 Set<UnRegisterBrokerRequestHeader> unregistrationRequests = new HashSet<>();

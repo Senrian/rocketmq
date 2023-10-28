@@ -53,6 +53,7 @@ public class PermName {
         return (perm & PERM_WRITE) == PERM_WRITE;
     }
 
+    // 是否继承权限
     public static boolean isInherited(final int perm) {
         return (perm & PERM_INHERIT) == PERM_INHERIT;
     }

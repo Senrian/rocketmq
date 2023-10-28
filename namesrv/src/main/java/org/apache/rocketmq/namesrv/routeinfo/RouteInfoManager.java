@@ -69,6 +69,8 @@ public class RouteInfoManager {
     private static final Logger log = LoggerFactory.getLogger(LoggerName.NAMESRV_LOGGER_NAME);
     private final static long DEFAULT_BROKER_CHANNEL_EXPIRED_TIME = 1000 * 60 * 2;
     private final ReadWriteLock lock = new ReentrantReadWriteLock();
+
+    // topic -> brokerName -> queueData
     private final Map<String/* topic */, Map<String, QueueData>> topicQueueTable;
     private final Map<String/* brokerName */, BrokerData> brokerAddrTable;
     private final Map<String/* clusterName */, Set<String/* brokerName */>> clusterAddrTable;
@@ -166,6 +168,7 @@ public class RouteInfoManager {
         }
     }
 
+    //
     public void deleteTopic(final String topic, final String clusterName) {
         try {
             this.lock.writeLock().lockInterruptibly();
@@ -177,6 +180,7 @@ public class RouteInfoManager {
             //get the store information for single topic
             Map<String, QueueData> queueDataMap = this.topicQueueTable.get(topic);
             if (queueDataMap != null) {
+                // remove the store information for single topic
                 for (String brokerName : brokerNames) {
                     final QueueData removedQD = queueDataMap.remove(brokerName);
                     if (removedQD != null) {
@@ -240,19 +244,22 @@ public class RouteInfoManager {
             this.lock.writeLock().lockInterruptibly();
 
             //init or update the cluster info
+            // 当前集群的所有brokerName
             Set<String> brokerNames = ConcurrentHashMapUtils.computeIfAbsent((ConcurrentHashMap<String, Set<String>>) this.clusterAddrTable, clusterName, k -> new HashSet<>());
             brokerNames.add(brokerName);
 
             boolean registerFirst = false;
 
             BrokerData brokerData = this.brokerAddrTable.get(brokerName);
+            // 没有这个brokerName，则新增
             if (null == brokerData) {
                 registerFirst = true;
                 brokerData = new BrokerData(clusterName, brokerName, new HashMap<>());
                 this.brokerAddrTable.put(brokerName, brokerData);
             }
-
+            // 充当master
             boolean isOldVersionBroker = enableActingMaster == null;
+            // 老版本的broker
             brokerData.setEnableActingMaster(!isOldVersionBroker && enableActingMaster);
             brokerData.setZoneName(zoneName);
 
@@ -273,6 +280,7 @@ public class RouteInfoManager {
             brokerAddrsMap.entrySet().removeIf(item -> null != brokerAddr && brokerAddr.equals(item.getValue()) && brokerId != item.getKey());
 
             //If Local brokerId stateVersion bigger than the registering one,
+            // then remove the brokerAddr from brokerAddrTable, or the broker will be removed from brokerLiveTable
             String oldBrokerAddr = brokerAddrsMap.get(brokerId);
             if (null != oldBrokerAddr && !oldBrokerAddr.equals(brokerAddr)) {
                 BrokerLiveInfo oldBrokerInfo = brokerLiveTable.get(new BrokerAddrInfo(clusterName, oldBrokerAddr));
@@ -340,6 +348,7 @@ public class RouteInfoManager {
                             entry.getValue().getTopicName())) {
                             final TopicConfig topicConfig = entry.getValue();
                             if (isPrimeSlave) {
+                                // 如果是从节点，则将写权限去掉
                                 // Wipe write perm for prime slave
                                 topicConfig.setPerm(topicConfig.getPerm() & (~PermName.PERM_WRITE));
                             }
@@ -527,10 +536,13 @@ public class RouteInfoManager {
         return 0;
     }
 
+    // 操作broker的写权限
     private int operateWritePermOfBroker(final String brokerName, final int requestCode) {
         int topicCnt = 0;
 
+        // 遍历所有的topic，将brokerName的写权限去掉
         for (Entry<String, Map<String, QueueData>> entry : this.topicQueueTable.entrySet()) {
+            // brokerName -> queueData
             Map<String, QueueData> qdMap = entry.getValue();
 
             final QueueData qd = qdMap.get(brokerName);
@@ -594,6 +606,7 @@ public class RouteInfoManager {
                 if (null != brokerData) {
                     if (!brokerData.getBrokerAddrs().isEmpty() &&
                         unRegisterRequest.getBrokerId().equals(Collections.min(brokerData.getBrokerAddrs().keySet()))) {
+                        // 最小的brokerId被移除了，需要通知所有的broker
                         isMinBrokerIdChanged = true;
                     }
                     boolean removed = brokerData.getBrokerAddrs().entrySet().removeIf(item -> item.getValue().equals(brokerAddr));
@@ -602,6 +615,7 @@ public class RouteInfoManager {
                         brokerAddrInfo
                     );
                     if (brokerData.getBrokerAddrs().isEmpty()) {
+                        //
                         this.brokerAddrTable.remove(brokerName);
                         log.info("unregisterBroker, remove name from brokerAddrTable OK, {}",
                             brokerName
@@ -609,6 +623,7 @@ public class RouteInfoManager {
 
                         removeBrokerName = true;
                     } else if (isMinBrokerIdChanged) {
+                        // 最小的brokerId被移除了，需要通知所有的broker
                         needNotifyBrokerMap.put(brokerName, new BrokerStatusChangeInfo(
                             brokerData.getBrokerAddrs(), brokerAddr, null));
                     }
@@ -1046,6 +1061,7 @@ public class RouteInfoManager {
         return topicList;
     }
 
+    // 获取单元化的topic列表
     public TopicList getUnitTopics() {
         TopicList topicList = new TopicList();
         try {
@@ -1094,8 +1110,10 @@ public class RouteInfoManager {
             this.lock.readLock().lockInterruptibly();
             for (Entry<String, Map<String, QueueData>> topicEntry : this.topicQueueTable.entrySet()) {
                 String topic = topicEntry.getKey();
+                // 有单元化子topic，但是没有单元化topic
                 Map<String, QueueData> queueDatas = topicEntry.getValue();
                 if (queueDatas != null && queueDatas.size() > 0
+                        // 获取第一个就够了
                     && !TopicSysFlag.hasUnitFlag(queueDatas.values().iterator().next().getTopicSysFlag())
                     && TopicSysFlag.hasUnitSubFlag(queueDatas.values().iterator().next().getTopicSysFlag())) {
                     topicList.getTopicList().add(topic);

@@ -32,6 +32,8 @@ public class RegisterBrokerRequestHeader implements CommandCustomHeader {
     private String brokerAddr;
     @CFNotNull
     private String clusterName;
+
+    // RegisterBrokerRequestHeader中的haServerAddr指的是高可用（high availability）服务器的地址。在Apache RocketMQ中，消息服务器可以设置为高可用模式，以确保消息的持久性和可靠性。在高可用模式下，如果主服务器（master）出现故障或无法正常工作，备份服务器（slave）将立即将服务接管并继续工作，以确保消息的正常投递。haServerAddr指定了备份服务器的地址，如果主服务器故障，消息服务器将自动切换到备份服务器，保证消息的可靠性。
     @CFNotNull
     private String haServerAddr;
     @CFNotNull

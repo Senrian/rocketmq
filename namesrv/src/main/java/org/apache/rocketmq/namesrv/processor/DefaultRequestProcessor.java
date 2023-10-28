@@ -325,6 +325,7 @@ public class DefaultRequestProcessor implements NettyRequestProcessor {
         return true;
     }
 
+    // 查询broker的topic配置是否有更新
     public RemotingCommand queryBrokerTopicConfig(ChannelHandlerContext ctx,
         RemotingCommand request) throws RemotingCommandException {
         final RemotingCommand response = RemotingCommand.createResponseCommand(QueryDataVersionResponseHeader.class);

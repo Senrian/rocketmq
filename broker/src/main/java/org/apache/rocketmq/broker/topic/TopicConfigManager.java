@@ -245,7 +245,7 @@ public class TopicConfigManager extends ConfigManager {
                                 defaultTopicConfig.setPerm(PermName.PERM_READ | PermName.PERM_WRITE);
                             }
                         }
-
+                        // 如果是AUTO_CREATE_TOPIC_KEY_TOPIC，则需要判断是否有发送权
                         if (PermName.isInherited(defaultTopicConfig.getPerm())) {
                             topicConfig = new TopicConfig(topic);
 

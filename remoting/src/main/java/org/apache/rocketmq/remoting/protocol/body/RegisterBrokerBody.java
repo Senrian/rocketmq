@@ -126,6 +126,7 @@ public class RegisterBrokerBody extends RemotingSerializable {
         registerBrokerBody.getTopicConfigSerializeWrapper().setDataVersion(dataVersion);
         ConcurrentMap<String, TopicConfig> topicConfigTable = registerBrokerBody.getTopicConfigSerializeWrapper().getTopicConfigTable();
 
+        // read topic config number
         int topicConfigNumber = readInt(inflaterInputStream);
         LOGGER.debug("{} topic configs to extract", topicConfigNumber);
 
@@ -136,6 +137,7 @@ public class RegisterBrokerBody extends RemotingSerializable {
             TopicConfig topicConfig = new TopicConfig();
             String topicConfigJson = new String(buffer, MixAll.DEFAULT_CHARSET);
             topicConfig.decode(topicConfigJson);
+            // put topic config into topic config table.
             topicConfigTable.put(topicConfig.getTopicName(), topicConfig);
         }
 
@@ -152,6 +154,7 @@ public class RegisterBrokerBody extends RemotingSerializable {
 
         registerBrokerBody.setFilterServerList(filterServerList);
 
+        // topic queue mapping
         if (brokerVersion.ordinal() >= MQVersion.Version.V5_0_0.ordinal()) {
             int topicQueueMappingNum = readInt(inflaterInputStream);
             Map<String/* topic */, TopicQueueMappingInfo> topicQueueMappingInfoMap = new ConcurrentHashMap<>();
