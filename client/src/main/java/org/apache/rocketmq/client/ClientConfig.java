@@ -73,7 +73,7 @@ public class ClientConfig {
 
     private String socksProxyConfig = System.getProperty(SOCKS_PROXY_CONFIG, "{}");
 
-    private int mqClientApiTimeout = 3 * 1000;
+    private int mqClientApiTimeout = 10 * 1000;
     private int detectTimeout = 200;
     private int detectInterval = 2 * 1000;
 

@@ -20,6 +20,7 @@ import org.apache.rocketmq.client.consumer.DefaultMQPushConsumer;
 import org.apache.rocketmq.client.consumer.listener.ConsumeConcurrentlyStatus;
 import org.apache.rocketmq.client.consumer.listener.MessageListenerConcurrently;
 import org.apache.rocketmq.client.exception.MQClientException;
+import org.apache.rocketmq.common.MixAll;
 import org.apache.rocketmq.common.consumer.ConsumeFromWhere;
 
 /**
@@ -32,6 +33,8 @@ public class Consumer {
     public static final String TOPIC = "TopicTest";
 
     public static void main(String[] args) throws MQClientException {
+        System.setProperty(MixAll.ROCKETMQ_HOME_PROPERTY, "/Users/xinransi/LearningProject/rocket");
+
 
         /*
          * Instantiate with specified consumer group name.
@@ -50,8 +53,7 @@ public class Consumer {
          * </pre>
          */
         // Uncomment the following line while debugging, namesrvAddr should be set to your local address
-        // consumer.setNamesrvAddr(DEFAULT_NAMESRVADDR);
-
+        consumer.setNamesrvAddr("localhost:9876");
         /*
          * Specify where to start in case the specific consumer group is a brand-new one.
          */
