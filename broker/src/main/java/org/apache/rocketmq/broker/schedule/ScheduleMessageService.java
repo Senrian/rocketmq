@@ -558,6 +558,11 @@ public class ScheduleMessageService extends ConfigManager {
             LinkedBlockingQueue<PutResultProcess> pendingQueue =
                 ScheduleMessageService.this.deliverPendingTable.get(this.delayLevel);
 
+            if (pendingQueue == null) {
+                log.warn("HandlePutResultTask: no pending queue for level {}, skip", this.delayLevel);
+                return;
+            }
+
             PutResultProcess putResultProcess;
             while ((putResultProcess = pendingQueue.peek()) != null) {
                 try {
