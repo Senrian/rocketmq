@@ -282,11 +282,11 @@ public class ProxyConfig implements ConfigFile {
     @Override
     public void initData() {
         parseDelayLevel();
-        if (StringUtils.isEmpty(localServeAddr)) {
-            this.localServeAddr = NetworkUtil.getLocalAddress();
-        }
         if (StringUtils.isBlank(localServeAddr)) {
-            throw new ProxyException(ProxyExceptionCode.INTERNAL_SERVER_ERROR, "get local serve ip failed");
+            this.localServeAddr = NetworkUtil.getLocalAddress();
+            if (StringUtils.isBlank(this.localServeAddr)) {
+                throw new ProxyException(ProxyExceptionCode.INTERNAL_SERVER_ERROR, "get local serve ip failed");
+            }
         }
         if (StringUtils.isBlank(remotingAccessAddr)) {
             this.remotingAccessAddr = this.localServeAddr;
