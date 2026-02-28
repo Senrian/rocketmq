@@ -168,7 +168,11 @@ public class NettyRemotingServer extends NettyRemotingAbstract implements Remoti
             publicThreadNums = 4;
         }
 
-        return Executors.newFixedThreadPool(publicThreadNums, new ThreadFactoryImpl("NettyServerPublicExecutor_"));
+        return new ThreadPoolExecutor(publicThreadNums, publicThreadNums,
+            0L, TimeUnit.MILLISECONDS,
+            new java.util.concurrent.LinkedBlockingQueue<>(1024),
+            new ThreadFactoryImpl("NettyServerPublicExecutor_"),
+            new ThreadPoolExecutor.CallerRunsPolicy());
     }
 
     private ScheduledExecutorService buildScheduleExecutor() {
