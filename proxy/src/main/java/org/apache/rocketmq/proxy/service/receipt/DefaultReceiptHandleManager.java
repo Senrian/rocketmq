@@ -151,6 +151,9 @@ public class DefaultReceiptHandleManager extends AbstractStartAndShutdown implem
     }
 
     protected boolean clientIsOffline(ReceiptHandleGroupKey groupKey) {
+        if (groupKey.getChannel() == null || !groupKey.getChannel().isActive()) {
+            return true;
+        }
         return this.consumerManager.findChannel(groupKey.getGroup(), groupKey.getChannel()) == null;
     }
 
