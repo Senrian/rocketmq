@@ -127,7 +127,7 @@ public class PopBufferMergeService extends ServiceThread {
             return;
         }
         if (!brokerController.getBrokerConfig().isInBrokerContainer()) {
-            while (this.buffer.size() > 0 || getOffsetTotalSize() > 0) {
+            while (this.buffer!isEmpty() || getOffsetTotalSize() > 0) {
                 scan();
             }
         }
@@ -305,7 +305,7 @@ public class PopBufferMergeService extends ServiceThread {
                                 indexList.add(i);
                             }
                         }
-                        if (indexList.size() > 0) {
+                        if (indexList!isEmpty()) {
                             putBatchAckToStore(pointWrapper, indexList, count);
                         }
                     } finally {

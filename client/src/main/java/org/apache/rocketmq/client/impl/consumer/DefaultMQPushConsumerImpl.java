@@ -623,7 +623,7 @@ public class DefaultMQPushConsumerImpl implements MQConsumerInner {
             List<MessageExt> msgFoundList = popResult.getMsgFoundList();
             List<MessageExt> msgListFilterAgain = new ArrayList<>(popResult.getMsgFoundList().size());
             if (!subscriptionData.getTagsSet().isEmpty() && !subscriptionData.isClassFilterMode()
-                && popResult.getMsgFoundList().size() > 0) {
+                && popResult.getMsgFoundList()!isEmpty()) {
                 for (MessageExt msg : popResult.getMsgFoundList()) {
                     if (msg.getTags() != null) {
                         if (subscriptionData.getTagsSet().contains(msg.getTags())) {

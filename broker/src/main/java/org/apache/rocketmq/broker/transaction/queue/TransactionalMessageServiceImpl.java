@@ -425,7 +425,7 @@ public class TransactionalMessageServiceImpl implements TransactionalMessageServ
                 log.error("Found a illegal tag in opMessageExt= {} ", opMessageExt);
             }
 
-            if (set.size() > 0) {
+            if (set!isEmpty()) {
                 opMsgMap.put(opMessageExt.getQueueOffset(), set);
             } else {
                 doneOpOffset.add(opMessageExt.getQueueOffset());
