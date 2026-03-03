@@ -103,6 +103,28 @@ public class ConsumerOffsetManager extends ConfigManager {
         }
     }
 
+    /**
+     * Remove consumer offset for a specific topic under a specific consumer group.
+     * This allows precise cleanup without removing the entire group or topic.
+     *
+     * @param topic the topic to remove offset for
+     * @param group the consumer group to remove offset for
+     */
+    public void removeOffsetByTopicAndGroup(String topic, String group) {
+        if (topic == null || group == null) {
+            LOG.warn("Cannot remove offset: topic or group is null. topic={}, group={}", topic, group);
+            return;
+        }
+        String key = topic + TOPIC_GROUP_SEPARATOR + group;
+        ConcurrentMap<Integer, Long> removed = this.offsetTable.remove(key);
+        if (removed != null) {
+            removeConsumerOffset(key);
+            pullOffsetTable.remove(key);
+            resetOffsetTable.remove(key);
+            LOG.info("Removed consumer offset for topic={}, group={}, offsetCount={}", topic, group, removed.size());
+        }
+    }
+
     public void scanUnsubscribedTopic() {
         Iterator<Entry<String, ConcurrentMap<Integer, Long>>> it = this.offsetTable.entrySet().iterator();
         while (it.hasNext()) {
