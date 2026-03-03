@@ -82,7 +82,7 @@ public class MessageQueueSelector {
         Set<AddressableMessageQueue> queueSet = new HashSet<>();
         List<QueueData> qds = topicRoute.getQueueDatas();
         if (qds == null) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         for (QueueData qd : qds) {
@@ -128,7 +128,7 @@ public class MessageQueueSelector {
         } else {
             List<QueueData> qds = topicRoute.getQueueDatas();
             if (qds == null) {
-                return new ArrayList<>();
+                return Collections.emptyList();
             }
 
             for (QueueData qd : qds) {

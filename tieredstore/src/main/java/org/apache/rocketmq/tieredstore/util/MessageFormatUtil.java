@@ -18,6 +18,7 @@ package org.apache.rocketmq.tieredstore.util;
 
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import org.apache.rocketmq.common.UtilAll;
@@ -105,7 +106,7 @@ public class MessageFormatUtil {
 
         if (cqBuffer == null || msgBuffer == null) {
             log.error("MessageFormatUtil split buffer error, cq buffer or msg buffer is null");
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         cqBuffer.rewind();

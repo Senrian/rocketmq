@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -926,7 +927,7 @@ public class MappedFileQueue implements Swappable {
     public List<MappedFile> range(final long from, final long to) {
         Object[] mfs = copyMappedFiles(0);
         if (null == mfs) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         List<MappedFile> result = new ArrayList<>();
