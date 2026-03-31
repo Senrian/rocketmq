@@ -23,6 +23,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Comparator;
+import java.util.Collections;
 import java.util.Iterator;
 import java.util.List;
 import java.util.ListIterator;
@@ -54,11 +55,35 @@ public class MappedFileQueue implements Swappable {
 
     protected volatile long storeTimestamp = 0;
 
+    protected RunningFlags runningFlags;
+
+    /**
+     * Configuration flag to use RandomAccessFile instead of MappedByteBuffer for writing
+     */
+    protected boolean writeWithoutMmap = false;
+
     public MappedFileQueue(final String storePath, int mappedFileSize,
         AllocateMappedFileService allocateMappedFileService) {
+        this(storePath, mappedFileSize, allocateMappedFileService, null, false);
+    }
+
+    public MappedFileQueue(final String storePath, int mappedFileSize,
+        AllocateMappedFileService allocateMappedFileService, RunningFlags runningFlags) {
+        this(storePath, mappedFileSize, allocateMappedFileService, runningFlags, false);
+    }
+
+    public MappedFileQueue(final String storePath, int mappedFileSize,
+        AllocateMappedFileService allocateMappedFileService, boolean writeWithoutMmap) {
+        this(storePath, mappedFileSize, allocateMappedFileService, null, writeWithoutMmap);
+    }
+
+    public MappedFileQueue(final String storePath, int mappedFileSize,
+        AllocateMappedFileService allocateMappedFileService, RunningFlags runningFlags, boolean writeWithoutMmap) {
         this.storePath = storePath;
         this.mappedFileSize = mappedFileSize;
         this.allocateMappedFileService = allocateMappedFileService;
+        this.runningFlags = runningFlags;
+        this.writeWithoutMmap = writeWithoutMmap;
     }
 
     public void checkSelf() {
@@ -266,7 +291,7 @@ public class MappedFileQueue implements Swappable {
             }
 
             try {
-                MappedFile mappedFile = new DefaultMappedFile(file.getPath(), mappedFileSize);
+                MappedFile mappedFile = new DefaultMappedFile(file.getPath(), mappedFileSize, runningFlags, writeWithoutMmap);
 
                 mappedFile.setWrotePosition(this.mappedFileSize);
                 mappedFile.setFlushedPosition(this.mappedFileSize);
@@ -356,7 +381,7 @@ public class MappedFileQueue implements Swappable {
                     nextNextFilePath, this.mappedFileSize);
         } else {
             try {
-                mappedFile = new DefaultMappedFile(nextFilePath, this.mappedFileSize);
+                mappedFile = new DefaultMappedFile(nextFilePath, this.mappedFileSize, runningFlags, this.writeWithoutMmap);
             } catch (IOException e) {
                 log.error("create mappedFile exception", e);
             }
@@ -775,6 +800,12 @@ public class MappedFileQueue implements Swappable {
         }
     }
 
+    public void cleanResourcesAll() {
+        for (MappedFile mf : this.mappedFiles) {
+            mf.cleanResources();
+        }
+    }
+
     public void destroy() {
         for (MappedFile mf : this.mappedFiles) {
             mf.destroy(1000 * 3);
@@ -896,7 +927,7 @@ public class MappedFileQueue implements Swappable {
     public List<MappedFile> range(final long from, final long to) {
         Object[] mfs = copyMappedFiles(0);
         if (null == mfs) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
 
         List<MappedFile> result = new ArrayList<>();
@@ -913,5 +944,21 @@ public class MappedFileQueue implements Swappable {
         }
 
         return result;
+    }
+
+    public MappedFile getEarliestMappedFile() {
+        MappedFile mappedFile = null;
+        while (!this.mappedFiles.isEmpty()) {
+            try {
+                mappedFile = this.mappedFiles.get(0);
+                break;
+            } catch (IndexOutOfBoundsException e) {
+                //continue;
+            } catch (Exception e) {
+                log.error("getEarliestMappedFile error: {}", e.getMessage());
+                break;
+            }
+        }
+        return mappedFile;
     }
 }

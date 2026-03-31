@@ -461,7 +461,7 @@ public class StatUtil {
         }
         Map<Long, SecondInvoke> secondInvokeMap = secondInvokeCache.get(key);
         if (secondInvokeMap == null || secondInvokeMap.isEmpty()) {
-            return new ArrayList<>();
+            return Collections.emptyList();
         }
         List<SecondInvoke> list = new ArrayList<>();
         list.addAll(secondInvokeMap.values());
