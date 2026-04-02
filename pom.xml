@@ -100,7 +100,7 @@
         <maven.compiler.target>1.8</maven.compiler.target>
 
         <commons-cli.version>1.5.0</commons-cli.version>
-        <netty.version>4.1.65.Final</netty.version>
+        <netty.version>4.1.108.Final</netty.version>
         <netty.tcnative.version>2.0.53.Final</netty.tcnative.version>
         <bcpkix-jdk15on.version>1.69</bcpkix-jdk15on.version>
         <fastjson.version>1.2.83</fastjson.version>
@@ -126,8 +126,8 @@
         <extra-enforcer-rules.version>1.0-beta-4</extra-enforcer-rules.version>
         <concurrentlinkedhashmap-lru.version>1.4.2</concurrentlinkedhashmap-lru.version>
         <rocketmq-proto.version>2.0.3</rocketmq-proto.version>
-        <grpc.version>1.53.0</grpc.version>
-        <protobuf.version>3.20.1</protobuf.version>
+        <grpc.version>1.65.1</grpc.version>
+        <protobuf.version>3.25.1</protobuf.version>
         <disruptor.version>1.2.10</disruptor.version>
         <org.relection.version>0.9.11</org.relection.version>
         <caffeine.version>2.9.3</caffeine.version>
